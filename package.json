@@ -1,0 +1,18 @@
+{
+    "name": "@genstack.js/root",
+    "private": true,
+    "type": "module",
+    "packageManager": "pnpm@9.15.0",
+    "workspaces": [
+        "sdk"
+    ],
+    "scripts": {
+        "check:fix": "biome check --write app",
+        "check:fmt": "biome format app substrate packages",
+        "check": "biome check app substrate packages",
+        "format": "biome format --write app substrate packages"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "1.9.4"
+    }
+}
