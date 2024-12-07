@@ -1,0 +1,99 @@
+[versions]
+sdk = "24.1.1"
+
+[libraries]
+sdk = { module = "org.graalvm.sdk:graal-sdk", version.ref = "sdk" }
+native-bridge = { module = "org.graalvm.sdk:nativebridge", version.ref = "sdk" }
+native-image = { module = "org.graalvm.sdk:nativeimage", version.ref = "sdk" }
+jniutils = { module = "org.graalvm.sdk:jniutils", version.ref = "sdk" }
+
+# JavaScript
+js = { module = "org.graalvm.polyglot:js", version.ref = "sdk" }
+js-language = { module = "org.graalvm.js:js-language", version.ref = "sdk" }
+js-community = { module = "org.graalvm.js:js-community", version.ref = "sdk" }
+js-isolate = { module = "org.graalvm.polyglot:js-isolate", version.ref = "sdk" }
+
+# WebAssembly
+wasm = { module = "org.graalvm.polyglot:wasm", version.ref = "sdk" }
+wasm-language = { module = "org.graalvm.wasm:wasm-language", version.ref = "sdk" }
+wasm-community = { module = "org.graalvm.wasm:wasm-community", version.ref = "sdk" }
+
+# Python
+python = { module = "org.graalvm.polyglot:python", version.ref = "sdk" }
+python-language = { module = "org.graalvm.python:python-language", version.ref = "sdk" }
+python-community = { module = "org.graalvm.python:python-community", version.ref = "sdk" }
+python-isolate = { module = "org.graalvm.polyglot:python-isolate", version.ref = "sdk" }
+
+# Ruby
+ruby = { module = "org.graalvm.polyglot:ruby", version.ref = "sdk" }
+ruby-language = { module = "org.graalvm.ruby:ruby-language", version.ref = "sdk" }
+ruby-community = { module = "org.graalvm.ruby:ruby-community", version.ref = "sdk" }
+
+# Tooling
+coverage = { module = "org.graalvm.polyglot:coverage", version.ref = "sdk" }
+dap = { module = "org.graalvm.polyglot:dap", version.ref = "sdk" }
+heap = { module = "org.graalvm.polyglot:heap", version.ref = "sdk" }
+insight = { module = "org.graalvm.polyglot:insight", version.ref = "sdk" }
+inspect = { module = "org.graalvm.polyglot:inspect", version.ref = "sdk" }
+lsp = { module = "org.graalvm.polyglot:lsp", version.ref = "sdk" }
+tools = { module = "org.graalvm.polyglot:tools", version.ref = "sdk" }
+
+[bundles]
+all = [
+  "sdk",
+  "js",
+  "js-language",
+  "js-community",
+  "js-isolate",
+  "wasm",
+  "wasm-language",
+  "wasm-community",
+  "python",
+  "python-language",
+  "python-community",
+  "python-isolate",
+  "ruby",
+  "ruby-language",
+  "ruby-community",
+]
+
+base = [
+  "sdk",
+  "native-image",
+]
+
+javascript = [
+  "js",
+  "js-language",
+  "js-community",
+  "js-isolate",
+]
+
+wasm = [
+  "wasm",
+  "wasm-language",
+  "wasm-community",
+]
+
+python = [
+  "python",
+  "python-language",
+  "python-community",
+  "python-isolate",
+]
+
+ruby = [
+  "ruby",
+  "ruby-language",
+  "ruby-community",
+]
+
+tools = [
+  "coverage",
+  "dap",
+  "heap",
+  "insight",
+  "inspect",
+  "lsp",
+  "tools",
+]

@@ -1,0 +1,51 @@
+[versions]
+protocol = "20241026011343.8bfad9140ad9"
+proto-jvm = "28.3.0.1.20241026011343.8bfad9140ad9"
+grpc-java = "1.67.1.1.20241026011343.8bfad9140ad9"
+grpc-kotlin = "1.4.1.1.20241026011343.8bfad9140ad9"
+validate-java = "1.1.0.1.20241026011343.8bfad9140ad9"
+
+[libraries]
+proto-java-full = { module = "build.buf.gen:genstack_protocol_protocolbuffers_java", version.ref = "proto-jvm" }
+proto-java-lite = { module = "build.buf.gen:genstack_protocol_protocolbuffers_java_lite", version.ref = "proto-jvm" }
+proto-kotlin-full = { module = "build.buf.gen:genstack_protocol_protocolbuffers_kotlin", version.ref = "proto-jvm" }
+proto-kotlin-lite = { module = "build.buf.gen:genstack_protocol_protocolbuffers_kotlin_lite", version.ref = "proto-jvm" }
+grpc-java-full = { module = "build.buf.gen:genstack_protocol_grpc_java", version.ref = "grpc-java" }
+grpc-java-lite = { module = "build.buf.gen:genstack_protocol_grpc_java_lite", version.ref = "grpc-java" }
+grpc-kotlin-full = { module = "build.buf.gen:genstack_protocol_grpc_kotlin", version.ref = "grpc-kotlin" }
+grpc-kotlin-lite = { module = "build.buf.gen:genstack_protocol_grpc_kotlin_lite", version.ref = "grpc-kotlin" }
+validate-java-full = { module = "build.buf.gen:genstack_protocol_bufbuild_validate-java", version.ref = "validate-java" }
+
+[plugins]
+
+[bundles]
+android-proto = [
+  "proto-java-lite",
+  "proto-kotlin-lite",
+]
+android-grpc = [
+  "grpc-java-lite",
+  "grpc-kotlin-lite",
+]
+android = [
+  "proto-java-lite",
+  "proto-kotlin-lite",
+  "grpc-java-lite",
+  "grpc-kotlin-lite",
+]
+jvm-grpc = [
+  "grpc-java-full",
+  "grpc-kotlin-full",
+]
+jvm-proto = [
+  "proto-java-full",
+  "proto-kotlin-full",
+  "validate-java-full",
+]
+jvm = [
+  "proto-java-full",
+  "proto-kotlin-full",
+  "grpc-java-full",
+  "grpc-kotlin-full",
+  "validate-java-full",
+]

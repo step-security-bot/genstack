@@ -1,8 +1,0 @@
-// Name of the company or vendor which makes this software.
-companyName = "2am Logic"
-
-// Name of this software product.
-productName = "Genstack"
-
-// URL-friendly name of this software product.
-productSlug = "genstack"
