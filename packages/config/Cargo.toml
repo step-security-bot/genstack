@@ -1,0 +1,14 @@
+[package]
+name = "genstack-config"
+version = "0.1.1"
+description = "Coming soon"
+authors = ["Sam Gammon <sam@2amlogic.com>", "Robb Walters <robb@2amlogic.com>", "Dario Valdespino <dario@2amlogi.com>"]
+edition = "2021"
+
+[lib]
+name = "genstack_config"
+crate-type = ["rlib"]
+path = "./src/rust/lib.rs"
+
+[build-dependencies]
+rusty-pkl = { workspace = true }

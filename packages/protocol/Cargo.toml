@@ -1,0 +1,16 @@
+[package]
+name = "genstack-protocol"
+version = "0.1.1"
+description = "Coming soon"
+authors = ["Sam Gammon <sam@2amlogic.com>", "Robb Walters <robb@2amlogic.com>", "Dario Valdespino <dario@2amlogi.com>"]
+edition = "2021"
+
+[lib]
+name = "genstack_protocol"
+crate-type = ["staticlib", "cdylib", "rlib"]
+path = "./src/rust/lib.rs"
+
+[dependencies]
+genstack-config = { workspace = true }
+prost = { workspace = true }
+prost-types = { workspace = true }
