@@ -22,3 +22,8 @@ gradleEnterprise {
         termsOfServiceAgree = "yes"
     }
 }
+
+rootProject.name = "sdk"
+
+includeBuild("../config")
+includeBuild("../protocol")

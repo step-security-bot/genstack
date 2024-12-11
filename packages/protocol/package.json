@@ -10,10 +10,11 @@
   "scripts": {
     "tsc": "tsc",
     "publint": "pnpx publint",
-    "gen": "buf generate",
+    "gen": "buf generate && bun --bun run scripts/build.mts",
     "publish:npm": "npm publish --access public",
-    "build": "pnpm run gen && bun --bun run scripts/build.mts && tsc",
-    "check": "pnpm build && pnpm biome check && tsc --noEmit && pnpx publint"
+    "build": "pnpm run gen && tsc",
+    "check": "pnpm build && pnpm biome check && tsc --noEmit && pnpx publint",
+    "postinstall": "pnpm gen"
   },
   "imports": {
     "#protocol": "./dist/gen/genstack",
@@ -53,7 +54,7 @@
     }
   },
   "dependencies": {
-    "@bufbuild/protobuf": "2.2.2",
+    "@bufbuild/protobuf": "2.2.3",
     "@genstack.js/config": "workspace:*"
   },
   "devDependencies": {

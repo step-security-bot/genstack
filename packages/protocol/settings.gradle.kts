@@ -22,3 +22,7 @@ gradleEnterprise {
         termsOfServiceAgree = "yes"
     }
 }
+
+rootProject.name = "protocol"
+
+includeBuild("../config")

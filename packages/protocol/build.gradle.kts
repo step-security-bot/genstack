@@ -3,6 +3,8 @@
 import GenstackBuild as Constants
 
 plugins {
+  `maven-publish`
+  alias(libs.plugins.nexus)
   alias(libs.plugins.buf)
   alias(libs.plugins.android.library)
   alias(libs.plugins.newco.kmp)

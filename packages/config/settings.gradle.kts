@@ -13,7 +13,7 @@ apply(from = "../../gradle/common-settings.gradle.kts")
 
 typealias GenstackConfig = (settings: Settings, path: String, block: Settings.() -> Unit) -> Unit
 (extra["genstack"] as GenstackConfig)(settings, "../") {
-  rootProject.name = "config"
+  rootProject.name = "sdk"
 }
 
 gradleEnterprise {
@@ -22,3 +22,5 @@ gradleEnterprise {
         termsOfServiceAgree = "yes"
     }
 }
+
+rootProject.name = "config"

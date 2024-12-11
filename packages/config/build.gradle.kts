@@ -17,7 +17,9 @@ import java.nio.charset.Charset
 import GenstackBuild as Constants
 
 plugins {
+  `maven-publish`
   `jvm-toolchains`
+  alias(libs.plugins.nexus)
   alias(libs.plugins.android.library)
   alias(libs.plugins.newco.kmp)
   alias(libs.plugins.idea.ext)
@@ -201,3 +203,4 @@ tasks {
 }
 
 configureKmpProject()
+publishableKmpLib()
