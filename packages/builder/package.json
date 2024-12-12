@@ -1,8 +1,10 @@
 {
   "name": "@genstack.js/builder",
   "version": "0.1.1",
-  "private": true,
   "type": "module",
+  "repository": {
+    "url": "https://github.com/genstack-gg/genstack"
+  },
   "engines": {
     "bun": "^1.1"
   },

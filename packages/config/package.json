@@ -5,6 +5,9 @@
   "config": {
     "apiVersion": "v1"
   },
+  "repository": {
+    "url": "https://github.com/genstack-gg/genstack"
+  },
   "files": ["dist"],
   "exports": {
     ".": {

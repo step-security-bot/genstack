@@ -6,6 +6,9 @@
   "config": {
     "apiVersion": "v1"
   },
+  "repository": {
+    "url": "https://github.com/genstack-gg/genstack"
+  },
   "engines": {
     "node": ">=18",
     "bun": "^1.1"

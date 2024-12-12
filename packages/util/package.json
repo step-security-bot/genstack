@@ -2,6 +2,9 @@
   "name": "@genstack.js/util",
   "version": "0.1.1",
   "type": "module",
+  "repository": {
+    "url": "https://github.com/genstack-gg/genstack"
+  },
   "files": ["dist"],
   "exports": {
     "./bin": {
