@@ -1,0 +1,11 @@
+pnpm biome format --no-errors-on-unmatched --write --staged
+
+# ------ changes sealed here
+
+# : update git indexes after formatters have run
+git update-index --again
+
+# ------
+
+# : lint staged changes (see `package.json:lint-staged`)
+pnpm lint-staged

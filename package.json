@@ -1,56 +1,73 @@
 {
-    "name": "@genstack.js/root",
-    "private": true,
-    "version": "0.1.1",
-    "type": "module",
-    "packageManager": "pnpm@9.15.0",
-    "workspaces": [
-        "packages/builder",
-        "packages/config",
-        "packages/memdb",
-        "packages/protocol",
-        "packages/protocol",
-        "packages/util"
-    ],
-    "scripts": {
-        "stage": "cz",
-        "lerna": "lerna",
-        "detekt": "bun run ./.dev/detekt.ts -r md:./.dev/reports/detekt.md -r txt:./.dev/reports/detekt.txt -r sarif:./.dev/reports/detekt.sarif -i engine/src,commons/src,packages/sdk/src",
-        "check:fix": "biome check --write",
-        "check:fmt": "biome format packages",
-        "check": "biome check packages",
-        "format": "biome format --write packages",
-        "lint:fix": "biome lint --write packages",
-        "lint": "biome lint",
-        "build": "pnpm -r build",
-        "test": "pnpm -r test",
-        "report:coverage": "echo 'Unified coverage reporting is not implemented yet'",
-        "report:tests": "echo 'Unified test reporting is not implemented yet'",
-        "reports": "pnpm run report:tests && pnpm run report:coverage",
-        "prepare": "husky"
-    },
-    "dependencies": {
-        "glob": "11.0.0"
-      },
-    "peerDependencies": {
-      "@bufbuild/protobuf": "2.2.2",
-      "typescript": "5.6.3"
-    },
-    "devDependencies": {
-        "@biomejs/biome": "1.9.4",
-        "@commitlint/cli": "^19.6.0",
-        "@commitlint/config-conventional": "^19.6.0",
-        "@types/bun": "1.1.14",
-        "@types/node": "22.10.1",
-        "commitizen": "4.3.1",
-        "husky": "^9.1.7",
-        "lerna": "^8.1.9",
-        "lint-staged": "^15.2.10"
-    },
-    "pnpm": {
-      "overrides": {
-        "cross-spawn": "7.0.6",
-        "glob": "$glob"
-      }
+  "name": "@genstack.js/root",
+  "private": true,
+  "version": "0.1.1",
+  "type": "module",
+  "packageManager": "pnpm@9.15.0",
+  "workspaces": [
+    "packages/builder",
+    "packages/config",
+    "packages/memdb",
+    "packages/protocol",
+    "packages/protocol",
+    "packages/util"
+  ],
+  "scripts": {
+    "stage": "cz",
+    "lerna": "lerna",
+    "detekt": "bun run ./.dev/detekt.ts -r md:./.dev/reports/detekt.md -r txt:./.dev/reports/detekt.txt -r sarif:./.dev/reports/detekt.sarif -i engine/src,commons/src,packages/sdk/src",
+    "check:fix": "biome check --write",
+    "check:fmt": "biome format packages",
+    "check": "biome check packages",
+    "format": "biome format --write packages",
+    "lint:fix": "biome lint --write packages",
+    "lint": "biome lint",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "report:coverage": "echo 'Unified coverage reporting is not implemented yet'",
+    "report:tests": "echo 'Unified test reporting is not implemented yet'",
+    "reports": "pnpm run report:tests && pnpm run report:coverage",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "glob": "11.0.0"
+  },
+  "peerDependencies": {
+    "@bufbuild/protobuf": "2.2.2",
+    "typescript": "5.6.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@commitlint/cli": "^19.6.0",
+    "@commitlint/config-conventional": "^19.6.0",
+    "@types/bun": "1.1.14",
+    "@types/node": "22.10.1",
+    "commitizen": "4.3.1",
+    "husky": "^9.1.7",
+    "lerna": "^8.1.9",
+    "lint-staged": "^15.2.10"
+  },
+  "pnpm": {
+    "overrides": {
+      "cross-spawn": "7.0.6",
+      "glob": "$glob"
     }
+  },
+  "lint-staged": {
+    "*.{json,css}": [
+      "biome check --staged --skip-errors --no-errors-on-unmatched"
+    ],
+    "*.{ts,cts,mts,tsx}": [
+      "biome check --staged --skip-errors --no-errors-on-unmatched"
+    ],
+    "*.{js,cjs,mjs,jsx}": [
+      "biome check --staged --skip-errors --no-errors-on-unmatched"
+    ],
+    "*.kt": [
+      "bun run ./.dev/detekt.ts --auto-correct -i",
+      "bun run ./.dev/detekt.ts -i",
+      "ktfmt"
+    ],
+    "*.rs": ["cargo fmt --"]
+  }
 }
