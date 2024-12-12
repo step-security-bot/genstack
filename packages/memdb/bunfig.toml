@@ -1,0 +1,11 @@
+[test]
+root = "./__tests__"
+coverageThreshold = 0.1
+coverageSkipTestFiles = true
+coverage = true
+coverageReporter  = ["text", "lcov"]
+coverageDir = "../../.dev/coverage/memdb"
+
+[run]
+# equivalent to `bun --bun` for all `bun run` commands
+bun = true

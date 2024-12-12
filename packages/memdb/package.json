@@ -1,0 +1,81 @@
+{
+  "name": "@genstack.js/memdb",
+  "version": "0.1.1",
+  "description": "Implements in-memory database services for Genstack",
+  "type": "module",
+  "config": {
+    "apiVersion": "v1"
+  },
+  "engines": {
+    "node": ">=18",
+    "bun": "^1.1"
+  },
+  "files": ["dist/bin", "dist/lib"],
+  "bin": {
+    "memdb": "./dist/lib/shim.mjs"
+  },
+  "scripts": {
+    "memdb": "pnpm run build:cli && ./dist/memdb",
+    "shim:bun": "bun run --bun ./dist/lib/shim.mjs",
+    "test": "bun test --reporter=junit --reporter-outfile=../../.dev/tests-memdb.xml",
+    "cli:macos-arm64": "bun build ./src/entry.mts --target=bun-darwin-arm64 --compile --outfile dist/bin/memdb-macos-arm64",
+    "cli:macos-amd64": "bun build ./src/entry.mts --target=bun-darwin-x64 --compile --outfile dist/bin/memdb-macos-amd64",
+    "cli:linux-amd64": "bun build ./src/entry.mts --target=bun-linux-x64-modern --compile --outfile dist/bin/memdb-linux-amd64",
+    "cli:windows-amd64": "bun build ./src/entry.mts --target=bun-windows-x64-modern --compile --outfile dist/bin/memdb-windows-amd64",
+    "build:cli:all": "pnpm run \"/^cli:.*/\"",
+    "build:cli": "bun build ./src/entry.mts --compile --outfile dist/memdb",
+    "build:types": "tsc",
+    "build": "bun run --bun ./scripts/build.mts && pnpm run build:types && pnpm run build:cli && pnpm run build:cli:all",
+    "publish:npm": "npm publish --access public",
+    "check": "pnpm biome check && tsc --noEmit && pnpx publint"
+  },
+  "exports": {
+    "./bun": {
+      "types": "./dist/lib/index.d.mts",
+      "bun": "./dist/lib/bun.mjs",
+      "import": "./dist/lib/bun.mjs",
+      "default": "./dist/lib/bun.mjs"
+    },
+    "./node": {
+      "types": "./dist/lib/index.d.mts",
+      "require": "./dist/lib/neutral.cjs",
+      "import": "./dist/lib/node.mjs",
+      "default": "./dist/lib/node.mjs"
+    },
+    ".": {
+      "types": "./dist/lib/index.d.mts",
+      "require": "./dist/lib/neutral.cjs",
+      "import": "./dist/lib/neutral.mjs",
+      "default": "./dist/lib/neutral.mjs"
+    }
+  },
+  "peerDependencies": {
+    "sqlite": "^5"
+  },
+  "peerDependenciesMeta": {
+    "sqlite": {
+      "optional": true
+    }
+  },
+  "optionalDependencies": {
+    "sqlite": "^5"
+  },
+  "devDependencies": {
+    "@depot/connectrpc-workers": "^1.2.0",
+    "@genstack.js/builder": "workspace:*",
+    "@types/bun": "1.1.14",
+    "esbuild": "0.24.0",
+    "typescript": "5.7.2"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "2.2.3",
+    "@connectrpc/connect": "2.0.0",
+    "@connectrpc/connect-web": "2.0.0",
+    "@genstack.js/protocol": "workspace:*",
+    "@genstack.js/util": "workspace:*",
+    "chalk": "5.3.0",
+    "commander": "12.1.0",
+    "inquirer": "12.2.0",
+    "node-sql-parser": "5.3.5"
+  }
+}
