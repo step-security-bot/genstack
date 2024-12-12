@@ -48,5 +48,7 @@ jobs:
     uses: ./.github/workflows/job.test.yml
     secrets: inherit
     with:
-      javascript: ${{ fromJson(needs.triage.outputs.javascript || 'false') == true }}
-      jvm: ${{ fromJson(needs.triage.outputs.kotlin || 'false') == true }}
+      #javascript: ${{ fromJson(needs.triage.outputs.javascript || 'false') == true }}
+      #jvm: ${{ fromJson(needs.triage.outputs.kotlin || 'false') == true }}
+      javascript: true
+      jvm: true
