@@ -1,0 +1,111 @@
+name: "Publish (NPM)"
+
+"on":
+  workflow_dispatch:
+    inputs:
+      path:
+        type: string
+        required: true
+        description: "Package: Path"
+      package:
+        type: string
+        required: true
+        description: "Package: Name"
+      version:
+        type: string
+        required: false
+        description: "Package: Version"
+      dry-run:
+        type: boolean
+        required: false
+        description: "Job: Dry Run"
+      args:
+        type: string
+        required: false
+        default: ""
+        description: "Job: Extra NPM Args"
+
+  workflow_call:
+    inputs:
+      path:
+        type: string
+        required: true
+        description: "Package: Path"
+      package:
+        type: string
+        required: true
+        description: "Package: Name"
+      version:
+        type: string
+        required: false
+        description: "Package: Version"
+      dry-run:
+        type: boolean
+        required: false
+        description: "Job: Dry Run"
+      args:
+        type: string
+        required: false
+        default: --provenance
+        description: "Job: Extra NPM Args"
+
+    secrets:
+      NPM_TOKEN:
+        description: "NPM: Token"
+        required: true
+    outputs:
+      package:
+        description: "Package: Name"
+        value: ${{ inputs.package }}
+      version:
+        description: "Package: Name"
+        value: ${{ inputs.version }}
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+  attestations: write
+
+jobs:
+  publish-npm:
+    name: "Publish to NPM (${{ inputs.package }})"
+    runs-on: ubuntu-24.04
+    steps:
+      - name: "Setup: Harden Runner"
+        uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - name: "Setup: Checkout"
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: "Setup: Pkl"
+        uses: pkl-community/setup-pkl@d42ebf923a369a329248cbb1d2605b5a8611502e  # v0
+        with:
+          pkl-version: 0.27.1
+      - name: "Setup: PNPM"
+        uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        with:
+          run_install: false
+      - name: "Setup: Node"
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - name: "Setup: Bun"
+        uses: oven-sh/setup-bun@4bc047ad259df6fc24a6c9b0f9a0cb08cf17fbe5 # v2.0.1
+        with:
+          bun-version-file: ".bun-version"
+      - name: "Setup: NPM Dependencies"
+        run: pnpm install --frozen-lockfile
+      - name: "Setup: NPM Credentials"
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+      - name: "Publish: ${{ inputs.package }}"
+        run: |
+            pnpm run -C ${{ inputs.path }} build && \
+                pnpm run -C ${{ inputs.path }} check && \
+                pnpm run -C ${{ inputs.path }} publish:npm ${{ inputs.args }} ${{ inputs.dry-run && '--dry-run' || '' }} && \
+                echo "Done."
