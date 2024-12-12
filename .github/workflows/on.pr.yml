@@ -1,0 +1,140 @@
+name: "PR"
+
+on:
+  pull_request:
+    branches: [master]
+  merge_group:
+    branches: [master]
+
+permissions:
+  # Required to upload SARIF file to CodeQL. See: https://github.com/github/codeql-action/issues/2117
+  actions: read
+  # Require writing security events to upload SARIF file to security tab
+  security-events: write
+  # Only need to read contents
+  contents: read
+
+jobs:
+  check-buf:
+    name: "Protocol"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: "Setup: Harden Runner"
+        uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - name: "Setup: Checkout"
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: "Check (Buf)"
+        uses: bufbuild/buf-action@3fb70352251376e958c4c2c92c3818de82a71c2b # v1.0.2
+        with:
+          token: ${{ secrets.BUF_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          breaking: ${{ contains(github.event.pull_request.labels.*.name, 'protocol:breaking') == false }}
+          lint: true
+          format: true
+          push: false
+
+  triage:
+    name: "Build"
+    uses: ./.github/workflows/job.triage.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      pull-requests: read
+
+  build-depgraph:
+    name: "Build"
+    needs: [triage]
+    if: github.event.pull_request.draft == false
+    uses: ./.github/workflows/job.dependency-graph.yml
+    secrets: inherit
+    permissions:
+      contents: write
+
+  build-all:
+    name: "Build"
+    needs: [triage]
+    if: ${{ fromJson(needs.triage.outputs.kotlin || 'false') == true }}
+    uses: ./.github/workflows/job.build.yml
+    secrets: inherit
+    with:
+      draft: ${{ github.event.pull_request.draft }}
+
+  check-biome:
+    name: "Check"
+    needs: [triage]
+    uses: ./.github/workflows/check.biome.yml
+    if: ${{ fromJson(needs.triage.outputs.javascript || 'false') == true }}
+    secrets: inherit
+
+  check-detekt:
+    name: "Check"
+    needs: [triage]
+    uses: ./.github/workflows/check.detekt.yml
+    secrets: inherit
+    if: ${{ fromJson(needs.triage.outputs.kotlin || 'false') == true }}
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+      pull-requests: write
+
+  check-sonar:
+    name: "Check"
+    needs: [triage]
+    uses: ./.github/workflows/check.sonar.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      pull-requests: read
+
+  check-rust:
+    name: "Check"
+    needs: [triage]
+    uses: ./.github/workflows/check.rust.yml
+    if: ${{ fromJson(needs.triage.outputs.rust || 'false') == true }}
+    secrets: inherit
+
+  check-wrapper:
+    name: "Check"
+    needs: [triage]
+    uses: ./.github/workflows/check.gradle-wrapper.yml
+    if: ${{ fromJson(needs.triage.outputs.gradle || 'false') == true }}
+    secrets: inherit
+
+  check-osv:
+    name: "Check"
+    needs: [triage]
+    uses: "2amlogic/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@main"
+    with:
+      upload-sarif: false
+      fail-on-vuln: false
+      scan-args: --config=./.dev/osv.toml --call-analysis=all --lockfile=pnpm-lock.yaml --lockfile=Cargo.lock --lockfile=*/gradle.lockfile
+
+  check-depreview:
+    name: "Check"
+    uses: ./.github/workflows/check.dependency-review.yml
+    needs: [build-depgraph]
+    secrets: inherit
+    if: ${{ fromJson(needs.triage.outputs.dependencies || 'false') == true }}
+    permissions:
+      contents: read
+      # Needed to write review comments to the PR
+      pull-requests: write
+
+  test-all:
+    name: "Test"
+    needs: [triage]
+    uses: ./.github/workflows/job.test.yml
+    secrets: inherit
+    with:
+      javascript: ${{ fromJson(needs.triage.outputs.javascript || 'false') == true }}
+      jvm: ${{ fromJson(needs.triage.outputs.kotlin || 'false') == true }}
