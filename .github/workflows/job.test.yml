@@ -1,0 +1,253 @@
+name: "Test"
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        type: string
+        default: ubuntu-latest
+        description: "Runner"
+      jvm:
+        type: boolean
+        description: "Tests: JVM"
+        default: false
+      javascript:
+        type: boolean
+        description: "Tests: JavaScript"
+        default: false
+  workflow_dispatch:
+    inputs:
+      runner:
+        type: string
+        default: ubuntu-latest
+        description: "Runner"
+      jvm:
+        type: boolean
+        description: "Tests: JVM"
+        default: false
+      javascript:
+        type: boolean
+        description: "Tests: JavaScript"
+        default: false
+
+env:
+  CARGO_TERM_COLOR: always
+
+permissions:
+  contents: read
+
+jobs:
+  tests-js:
+    name: "Tests (JavaScript)"
+    runs-on: ${{ inputs.runner }}
+    if: inputs.javascript
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+        with:
+          egress-policy: audit
+          allowed-endpoints: >
+            api.github.com:443
+            azure.archive.ubuntu.com:80
+            binaries.prisma.sh:443
+            buf.build:443
+            bun.sh:443
+            cli.codecov.io:443
+            esm.ubuntu.com:443
+            github.com:443
+            index.crates.io:443
+            ingest.codecov.io:443
+            keybase.io:443
+            nodejs.org:443
+            objects.githubusercontent.com:443
+            packages.microsoft.com:443
+            playwright.azureedge.net:443
+            registry.npmjs.org:443
+            services.gradle.org:443
+            static.crates.io:443
+            static.rust-lang.org:443
+            storage.googleapis.com:443
+            storybook.js.org:443
+            scans-in.gradle.com:443
+      - name: "Setup: Checkout"
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+          persist-credentials: false
+      - name: "Setup: PNPM"
+        uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        with:
+          run_install: false
+      - name: "Setup: Pkl"
+        uses: pkl-community/setup-pkl@d42ebf923a369a329248cbb1d2605b5a8611502e  # v0
+        with:
+          pkl-version: 0.27.1
+      - name: "Setup: Node"
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - name: "Setup: Bun"
+        uses: oven-sh/setup-bun@4bc047ad259df6fc24a6c9b0f9a0cb08cf17fbe5 # v2.0.1
+        with:
+          bun-version-file: ".bun-version"
+      - name: "Setup: Rust"
+        uses: actions-rust-lang/setup-rust-toolchain@11df97af8e8102fd60b60a77dfbf58d40cd843b8 # v1.10.1
+        with:
+          toolchain: nightly
+          components: rustfmt,clippy,llvm-tools-preview
+      - name: "Setup: Gradle"
+        uses: gradle/actions/setup-gradle@cc4fc85e6b35bafd578d5ffbc76a5518407e1af0 # v4.2.1
+      - name: "Setup: Buf"
+        uses: bufbuild/buf-setup-action@9672cee01808979ea1249f81d6d321217b9a10f6 # v1.47.2
+        with:
+          version: 'v1.45.0'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          buf_api_token: ${{ secrets.BUF_TOKEN }}
+      - name: "Setup: NPM Dependencies"
+        run: pnpm install --frozen-lockfile
+      - name: "Setup: JavaScript Testing"
+        run: pnpx playwright install --with-deps
+      - name: "Tests: JavaScript/TypeScript"
+        run: pnpm test
+      - name: "Tests: Aggregate"
+        run: pnpm reports
+      - name: "Report: Tests to Codecov (Memory DB)"
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: codecov/test-results-action@9739113ad922ea0a9abb4b2c0f8bf6a4aa8ef820 # v1.0.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: tests-memdb.xml
+          directory: ./.dev
+          flags: js,memdb
+      - name: "Report: TypeScript Coverage (Memory DB)"
+        uses: codecov/codecov-action@7f8b4b4bde536c465e797be725718b88c5d95e0e # v5.1.1
+        continue-on-error: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          fail_ci_if_error: false
+          directory: .dev/coverage/memdb
+          flags: js,memdb
+      - name: "Report: Tests to Codecov (Util)"
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: codecov/test-results-action@9739113ad922ea0a9abb4b2c0f8bf6a4aa8ef820 # v1.0.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: tests-util.xml
+          directory: ./.dev
+          flags: js,util
+      - name: "Report: TypeScript Coverage (Util)"
+        uses: codecov/codecov-action@7f8b4b4bde536c465e797be725718b88c5d95e0e # v5.1.1
+        continue-on-error: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          fail_ci_if_error: false
+          directory: .dev/coverage/util
+          flags: js,util
+
+  tests-jvm:
+    name: "Tests (JVM)"
+    runs-on: ${{ inputs.runner }}
+    if: inputs.jvm
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+        with:
+          disable-sudo: true
+          egress-policy: audit
+          allowed-endpoints: >
+            analytics-api.buildkite.com:443
+            api.azul.com:443
+            api.github.com:443
+            binaries.prisma.sh:443
+            buf.build:443
+            bun.sh:443
+            cdn.azul.com:443
+            cli.codecov.io:443
+            dl.google.com:443
+            download.oracle.com:443
+            github.com:443
+            index.crates.io:443
+            ingest.codecov.io:443
+            keybase.io:443
+            nodejs.org:443
+            objects.githubusercontent.com:443
+            plugins-artifacts.gradle.org:443
+            plugins.gradle.org:443
+            registry.npmjs.org:443
+            repo.maven.apache.org:443
+            services.gradle.org:443
+            static.crates.io:443
+            static.rust-lang.org:443
+            storage.googleapis.com:443
+            scans-in.gradle.com:443
+      - name: "Setup: Checkout"
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+          persist-credentials: false
+      - name: "Setup: Java"
+        uses: actions/setup-java@8df1039502a15bceb9433410b1a100fbe190c53b # v4.5.0
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+      - name: "Setup: GraalVM"
+        uses: graalvm/setup-graalvm@4a200f28cd70d1940b5e33bd00830b7dc71a7e2b # v1.2.6
+        with:
+          java-version: '23'
+          distribution: 'graalvm'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: "Setup: PNPM"
+        uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        with:
+          run_install: false
+      - name: "Setup: Node"
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - name: "Setup: Pkl"
+        uses: pkl-community/setup-pkl@d42ebf923a369a329248cbb1d2605b5a8611502e  # v0
+        with:
+          pkl-version: 0.27.1
+      - name: "Setup: Bun"
+        uses: oven-sh/setup-bun@4bc047ad259df6fc24a6c9b0f9a0cb08cf17fbe5 # v2.0.1
+        with:
+          bun-version-file: ".bun-version"
+      - name: "Setup: Rust"
+        uses: actions-rust-lang/setup-rust-toolchain@11df97af8e8102fd60b60a77dfbf58d40cd843b8 # v1.10.1
+        with:
+          toolchain: nightly
+          components: rustfmt,clippy,llvm-tools-preview
+      - name: "Setup: Gradle Settings"
+        run: |
+          mkdir -p $HOME/.gradle
+          cp -fv ./.github/workflows/gradle-ci.properties $HOME/.gradle/gradle.properties
+      - name: "Setup: Gradle"
+        uses: gradle/actions/setup-gradle@cc4fc85e6b35bafd578d5ffbc76a5518407e1af0 # v4.2.1
+      - name: "Setup: Buf"
+        uses: bufbuild/buf-setup-action@9672cee01808979ea1249f81d6d321217b9a10f6 # v1.47.2
+        with:
+          version: 'v1.45.0'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          buf_api_token: ${{ secrets.BUF_TOKEN }}
+      - name: "Setup: NPM Dependencies"
+        run: pnpm install --frozen-lockfile
+      - name: "Tests: JVM"
+        run: |
+          ./gradlew \
+              --continue \
+              test \
+              sdk:koverXmlReport \
+              sdk:koverBinaryReport \
+              sdk:koverLog \
+              sdk:koverVerify
+      - name: "Tests: Aggregate"
+        run: pnpm reports
+      - name: "Reports: Testing & Coverage"
+        run: |
+          ./.dev/report-tests.sh && ./.dev/report-coverage.sh
