@@ -1,0 +1,7 @@
+# This is a Gradle generated file for dependency locking.
+# Manual edits can break the build and are not advised.
+# This file is expected to be part of source control.
+androidx.gradle:gradle-version-catalog:2024.11.00=incomingCatalogForAndroidx0
+dev.elide:elide-bom:1.0.0-alpha10=incomingCatalogForElide0
+org.jetbrains.kotlin-wrappers:kotlin-wrappers-catalog:0.0.1-pre.820=incomingCatalogForKjs0
+empty=incomingCatalogForGenstack0,incomingCatalogForGvm0,incomingCatalogForKotlinx0,incomingCatalogForLibs0,incomingCatalogForNpm0,incomingCatalogForProtocol0

@@ -1,0 +1,11 @@
+version: v2
+modules:
+  - path: protocol
+    name: buf.build/genstack/protocol
+lint:
+  use:
+    - STANDARD
+  except:
+    - ENUM_VALUE_PREFIX
+    - PACKAGE_VERSION_SUFFIX
+    - RPC_RESPONSE_STANDARD_NAME 
