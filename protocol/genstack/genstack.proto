@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+// buf:lint:ignore PACKAGE_VERSION_SUFFIX
+package genstack;
+
+// ## Channel
+//
+// Describes the applicable channel for a release, feature, or some other object.
+enum Channel {
+  // Unrecognized or default channel case.
+  CHANNEL_UNSPECIFIED = 0;
+
+  // Channel for beta release.
+  CHANNEL_BETA = 1;
+
+  // Channel for stable release.
+  CHANNEL_STABLE = 2;
+}
+
+// ## Platform
+//
+// Describes the target platform for a release, feature, or some other object.
+enum Platform {
+  // Unrecognized or default platform case.
+  PLATFORM_UNSPECIFIED = 0;
+
+  // Platform for Android.
+  PLATFORM_ANDROID = 1;
+
+  // Platform for iOS.
+  PLATFORM_IOS = 2;
+
+  // Platform for Web.
+  PLATFORM_WEB = 3;
+
+  // Platform for macOS.
+  PLATFORM_MACOS = 4;
+
+  // Platform for Windows.
+  PLATFORM_WINDOWS = 5;
+
+  // Platform for desktop Linux.
+  PLATFORM_LINUX = 6;
+}

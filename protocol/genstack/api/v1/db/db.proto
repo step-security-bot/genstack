@@ -1,0 +1,396 @@
+syntax = "proto3";
+
+package genstack.api.v1.db;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+// ## Database Service
+//
+// The Database Service abstracts data persistence facilities behind a SQLite-compatible API.
+// Connections are obtained by clients (in the form of a "connection token"), which can then
+// be used to perform queries or other statements.
+service DatabaseService {
+  // Establishes a managed database connection, identified by the `ConnectionToken` held
+  // within the response.
+  rpc DatabaseConnect(DatabaseConnectRequest) returns (DatabaseConnectResponse);
+
+  // Establishes or connects on-demand to a database (identified by a `ConnectionToken`),
+  // and then executes a query against that database, returning any results (as applicable).
+  rpc DatabaseQuery(DatabaseQueryRequest) returns (DatabaseQueryResponse);
+
+  // Establishes or connects on-demand to a database (identified by a `ConnectionToken`), and
+  // then listens for events emitted for a given query or subject, until cancelled.
+  rpc DatabaseListen(DatabaseListenRequest) returns (stream DatabaseListenEvent);
+
+  // Lists tables within a database, using either an existing connection token or an inline
+  // connection specification.
+  rpc DatabaseTables(DatabaseTablesRequest) returns (DatabaseTablesResponse);
+
+  // Lists active databases which the invoking user can access; not supported in all contexts.
+  rpc DatabaseList(DatabaseListRequest) returns (DatabaseListResponse);
+
+  // Checks the status of a database connection or profile.
+  rpc ConnectionStatus(ConnectionStatusRequest) returns (ConnectionStatusResponse);
+}
+
+// Specifies the access level of a database connection.
+enum DatabaseAccessLevel {
+  // No access level is specified, or the access level is unrecognized at this protocol version.
+  DATABASE_ACCESS_LEVEL_UNSPECIFIED = 0;
+
+  // The caller has no access to the database.
+  DATABASE_ACCESS_LEVEL_ANONYMOUS = 1;
+
+  // The caller has read-only access to the database.
+  DATABASE_ACCESS_LEVEL_READ_ONLY = 2;
+
+  // The caller has read-write access to the database.
+  DATABASE_ACCESS_LEVEL_READ_WRITE = 3;
+
+  // The caller has full access to the database.
+  DATABASE_ACCESS_LEVEL_ADMIN = 4;
+}
+
+// Uniquely identifies a database connection.
+message ConnectionToken {
+  // Token which identifies this client's database connection.
+  uint64 token = 1;
+
+  // Absolute expiration timestamp.
+  google.protobuf.Timestamp expires = 2;
+
+  // Flipped to `true` if this connection is read-only.
+  bool read_only = 3;
+}
+
+// Specifies a database query.
+message DatabaseQuery {
+  // Flipped to `true` if the caller expects no response.
+  bool statement = 1;
+
+  reserved 2;
+  reserved 3;
+  reserved 4;
+
+  // Main query specification body.
+  oneof spec {
+    // Regular string SQL query.
+    string query = 5;
+  }
+}
+
+// Enumerates raw types for columns within a database.
+enum ColumnPrimitiveType {
+  // The type is unspecified, or otherwise unrecognized by this protocol version.
+  COLUMN_PRIMITIVE_TYPE_UNSPECIFIED = 0;
+
+  // Raw data columns.
+  BLOB = 1;
+
+  // Text columns (strings).
+  TEXT = 2;
+
+  // Numeric columns.
+  INTEGER = 3;
+
+  // Floating-point columns.
+  REAL = 4;
+}
+
+// Describes configuration state for a database which relates to encryption.
+message DatabaseEncryption {
+  // Nothing at this time.
+}
+
+// Describes information about a database.
+message Database {
+  // Identifier for this database.
+  DatabaseIdentifier identifier = 1;
+
+  // Whether this database is ephemeral; such databases are held in-memory only.
+  bool ephemeral = 2;
+
+  // Whether this database is persistent; such databases are persisted to disk.
+  bool persistent = 3;
+
+  // Encryption configuration for this database.
+  DatabaseEncryption encryption = 4;
+}
+
+// Describes information about a database within the context of a connection or user.
+message AttachedDatabase {
+  // Access level granted to this database.
+  DatabaseAccessLevel access = 1;
+
+  // Database identified by this attachment.
+  Database database = 2;
+}
+
+// Configuration for specifying a database connection at the callsite.
+message DatabaseConnection {
+  // Specifies a database connection.
+  oneof spec {
+    // Existing connection token.
+    ConnectionToken token = 1;
+
+    // Inline spec describing how to connect to the database.
+    DatabaseConnectRequest connect = 2;
+  }
+}
+
+// Specifies metadata about a database table column.
+message DatabaseColumn {
+  // Ordinal identity of this column.
+  uint32 ordinal = 1;
+
+  // Name of this column.
+  string name = 2;
+
+  // Type setting of this column.
+  oneof type {
+    // Primitive type of this column.
+    ColumnPrimitiveType primitive = 3;
+  }
+}
+
+// Specifies metadata about a database table.
+message DatabaseTable {
+  // Identity assigned to this table within a scoped response.
+  uint32 identity = 1;
+
+  // Name of the table, if known.
+  string name = 2;
+
+  // Columns held by this table, as applicable or if known.
+  repeated DatabaseColumn column = 3;
+}
+
+// Describes a single database value.
+message DatabaseValue {
+  oneof data {
+    // Primitive values, arrays, and json-like objects.
+    google.protobuf.Value value = 1;
+
+    // Raw binary data.
+    bytes blob = 2;
+
+    // Double-precision floating-point value.
+    double real = 3;
+
+    // Empty or null state.
+    bool empty = 4;
+  }
+}
+
+// Specifies a single database row result.
+message DatabaseRow {
+  // Database table relating to this row.
+  uint32 table = 1;
+
+  // Ordinal identity of this row.
+  uint32 ordinal = 2;
+
+  // Cell values held by this row.
+  repeated DatabaseValue value = 3;
+}
+
+// Single-value result from a database query.
+message DatabaseValueResult {
+  // Value returned by the query.
+  DatabaseValue value = 1;
+}
+
+// Metadata about a database result set, which contains zero or more rows.
+message ResultSetMetadata {
+  // Total count of all matching rows; only applies to paging.
+  uint64 total = 1;
+}
+
+// Results from a database query which yields rows.
+message DatabaseResultSet {
+  // Table info stapled to this result set.
+  repeated DatabaseTable table = 1;
+
+  // Metadata about this result set.
+  ResultSetMetadata metadata = 2;
+
+  // Rows held by this result set.
+  repeated DatabaseRow row = 3;
+}
+
+// Results from a database query which mutates rows.
+message DatabaseMutationResult {
+  // Describes a mutation result.
+  oneof result {
+    // Count of rows modified by a query.
+    uint64 rows_modified = 1;
+  }
+}
+
+// General result from a database query.
+message DatabaseResult {
+  // Whether the operation completed without error.
+  bool ok = 1;
+
+  reserved 2;
+  reserved 3;
+  reserved 4;
+
+  // Return value of the query, if any.
+  oneof result {
+    // Results were empty.
+    bool empty = 5;
+
+    // The query returned a single value, like a count.
+    DatabaseValueResult single = 6;
+
+    // The query returned one or more database rows.
+    DatabaseResultSet resultset = 7;
+
+    // The query mutated data and returned a result about what was mutated.
+    DatabaseMutationResult mutation = 8;
+  }
+}
+
+// Describes configuration for creating, or connecting to, an encrypted database.
+message DatabaseEncryptionProfile {
+  // Nothing at this time.
+}
+
+// Describes a configuration for a database; this includes all necessary parameters to create the database, as well as
+// any parameters dealing with encryption or compression.
+message DatabaseProfile {
+  // Identifier for this database; typically a string name.
+  DatabaseIdentifier identifier = 1;
+
+  // Persistence configuration for this database. If no flag is set, the default for a given driver is used.
+  oneof persistence {
+    // Flipped to `true` if this database is held in-memory only. Only supported in some contexts, and may be the
+    // default in other contexts if `persistent` is not set.
+    bool ephemeral = 2;
+
+    // Flipped to `true` if this database should be persisted to disk.
+    bool persistent = 3;
+  }
+
+  // Encryption configuration to enclose with this profile.
+  DatabaseEncryptionProfile encryption = 4;
+}
+
+// Requests to connect to, and use, application database services.
+message DatabaseConnectRequest {
+  reserved 1;
+  reserved 2;
+  reserved 3;
+  reserved 4;
+
+  // Identifies the database to connect to.
+  oneof identifier {
+    // Arbitrary string name identifying a database.
+    string name = 5;
+
+    // Flipped to `true` if connecting to the default database.
+    bool default = 6;
+
+    // Connection profile to use.
+    DatabaseProfile profile = 7;
+  }
+}
+
+// Responds to a request to connect to, and use, an application database.
+message DatabaseConnectResponse {
+  // Database connection created for this session.
+  ConnectionToken connection = 1;
+}
+
+// Requests that a query be executed against a database.
+message DatabaseQueryRequest {
+  // Database connection to use; either requires an existing connection token obtained via `Connect`,
+  // or an inline specification describing how to connect to the database.
+  DatabaseConnection connection = 1;
+
+  // Query to run against the database.
+  DatabaseQuery query = 2;
+}
+
+// Response to a query execution.
+message DatabaseQueryResponse {
+  // Result of the query execution.
+  DatabaseResult result = 1;
+}
+
+// Requests a list of tables within a database.
+message DatabaseTablesRequest {
+  // Connection to use; either requires an existing connection token obtained via `Connect`,
+  DatabaseConnection connection = 1;
+}
+
+// Responds with a list of tables within a database.
+message DatabaseTablesResponse {
+  // Tables within the database.
+  repeated DatabaseTable table = 1;
+}
+
+// Metadata which identifies a database.
+message DatabaseIdentifier {
+  oneof spec {
+    // Flipped to `true` if this database is the default database.
+    bool default = 1;
+
+    // Arbitrary string name identifying a database.
+    string name = 2;
+  }
+}
+
+// Requests to list databases which an invoking connection has access to.
+message DatabaseListRequest {
+  // Connection to use; either requires an existing connection token obtained via `Connect`,
+  DatabaseConnection connection = 1;
+}
+
+// Response to a request to list databases.
+message DatabaseListResponse {
+  // Databases which the invoking connection has access to.
+  repeated AttachedDatabase database = 1;
+}
+
+// Connection status descriptor payload.
+message ConnectionStatus {
+  // Connection token which was checked; the token may be re-issued, extending its lifetime.
+  ConnectionToken token = 1;
+
+  // Access control level granted to this connection.
+  DatabaseAccessLevel access = 2;
+
+  // Database identifier which this connection is connected to.
+  DatabaseIdentifier database = 3;
+}
+
+// Requests to check conenction status.
+message ConnectionStatusRequest {
+  // Connection to check. Specifies either an existing connection token or an inline connection spec.
+  DatabaseConnection connection = 1;
+}
+
+// Response to a request to check connection status.
+message ConnectionStatusResponse {
+  // Connection status information.
+  oneof state {
+    // The connection is not active.
+    bool dead = 1;
+
+    // The connection is active.
+    ConnectionStatus alive = 2;
+  }
+}
+
+// Requests to listen for events relating to a given database query or subject.
+message DatabaseListenRequest {
+  // Not yet defined.
+}
+
+// Events emitted for a database listener.
+message DatabaseListenEvent {
+  // Not yet defined.
+}

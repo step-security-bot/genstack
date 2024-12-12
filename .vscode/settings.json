@@ -1,0 +1,8 @@
+{
+  "java.test.editor.enableShortcuts": true,
+  "explorer.autoReveal": "focusNoScroll",
+  "terminal.integrated.gpuAcceleration": "on",
+  "terminal.integrated.enableImages": true,
+  "terminal.integrated.customGlyphs": true,
+  "gradle.autoDetect": "off"
+}

@@ -1,6 +1,3 @@
 packages:
-  - builder
-  - config
-  - protocol
-  - sdk
+  - packages/*
 

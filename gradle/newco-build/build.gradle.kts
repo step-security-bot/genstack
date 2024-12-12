@@ -26,6 +26,7 @@ dependencies {
   implementation(libs.build.plugins.buildkite.unittesting)
   implementation(libs.build.plugins.buf)
   implementation(libs.build.plugins.buildconfig)
+  implementation(libs.build.plugins.nexus)
   implementation(kotlinx.serialization.core)
   implementation(kotlinx.serialization.json)
   implementation(kotlinx.serialization.protobuf)

@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package genstack.api.v1.user;
+
+//
+service UserService {}
+
+//
+message User {}
+
+//
+message UserInfo {}

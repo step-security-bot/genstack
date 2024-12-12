@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package genstack.api.v1.app;
+
+// Coming soon.
+service AppService {}
+
+//
+message SessionTokens {}
+
+//
+message AuthTicket {}

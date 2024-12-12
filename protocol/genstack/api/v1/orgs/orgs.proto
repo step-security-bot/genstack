@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package genstack.api.v1.orgs;
+
+//
+service OrgService {}
+
+//
+message Org {}

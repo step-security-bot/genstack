@@ -22,6 +22,7 @@ buf-plugin = "0.10.2"
 pkl-lib = "0.27.1"
 pkl-plugin = "0.27.1"
 buildconfig-plugin = "5.5.1"
+nexus-plugin = "2.0.0"
 
 [libraries]
 pkl-core = { module = "org.pkl-lang:pkl-core", version.ref = "pkl-lib" }
@@ -46,6 +47,7 @@ build-plugins-buildkite-unittesting = { module = "com.buildkite.test-collector-a
 build-plugins-buildkite-android = { module = "com.buildkite.test-collector-android:instrumented-test-collector", version.ref = "buildkite-tests-instrumented" }
 build-plugins-pkl = { module = "org.pkl-lang:org.pkl-lang.gradle.plugin", version.ref = "pkl-plugin" }
 build-plugins-buildconfig = { module = "com.github.gmazzo.buildconfig:plugin", version.ref = "buildconfig-plugin" }
+build-plugins-nexus = { module = "io.github.gradle-nexus:publish-plugin", version.ref = "nexus-plugin" }
 jakarta-validation-api = { module = "jakarta.validation:jakarta.validation-api" }
 serialization-yaml = { module = "com.charleskorn.kaml:kaml", version.ref = "serialization-yaml" }
 clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
@@ -61,6 +63,7 @@ protobuf-kotlin = { module = "com.google.protobuf:protobuf-kotlin", version.ref 
 protobuf-kotlin-lite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobuf-kotlin" }
 
 [plugins]
+nexus = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexus-plugin" }
 buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildconfig-plugin" }
 pkl = { id = "org.pkl-lang", version.ref = "pkl-plugin" }
 buf = { id = "build.buf", version.ref = "buf-plugin" }

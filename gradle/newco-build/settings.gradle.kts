@@ -24,10 +24,6 @@ dependencyResolutionManagement {
     maven {
       name = "buf"
       url = uri("https://buf.build/gen/maven")
-      credentials(HttpHeaderCredentials::class)
-      authentication {
-        create<HttpHeaderAuthentication>("header")
-      }
       content {
         includeGroup("build.buf.gen")
       }

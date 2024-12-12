@@ -1,0 +1,157 @@
+syntax = "proto3";
+
+package genstack.api.v1.projects;
+
+import "genstack/manifest.proto";
+
+// ## Projects Service
+//
+// API for creating, listing, and managing `Project` records, which live within the scope of a user account or
+// organization. Projects contain code and metadata in sufficient resolution to build and run the project, and
+// to generate binary distributions.
+service ProjectService {}
+
+// ## Project
+//
+// Canonical project object model; these objects are stored, transmitted, and manipulated via authoritative APIs.
+// Projects are described within a user's codebase by a `ProjectManifest`, which models things like a project's
+// name, version, and dependencies.
+message Project {}
+
+// Describes the scope of applicability for a given dependency or dependency suite.
+enum DependencyScope {
+  // The dependency scope is unknown or unspecified.
+  DEPENDENCY_SCOPE_UNSPECIFIED = 0;
+
+  // The dependency is a compile-time dependency.
+  DEPENDENCY_SCOPE_COMPILE = 1;
+
+  // The dependency is a runtime dependency.
+  DEPENDENCY_SCOPE_RUNTIME = 2;
+
+  // The dependency is a test-time dependency.
+  DEPENDENCY_SCOPE_TEST = 3;
+
+  // The dependency is a development-time dependency.
+  DEPENDENCY_SCOPE_DEVELOPMENT = 4;
+}
+
+// Describes the disposition state of a given dependency or dependency suite.
+enum DependencyDisposition {
+  // The disposition state is unknown or unspecified.
+  DEPENDENCY_DISPOSITION_UNSPECIFIED = 0;
+
+  // The dependency is optional.
+  DEPENDENCY_DISPOSITION_OPTIONAL = 1;
+
+  // The dependency is a peer.
+  DEPENDENCY_DISPOSITION_PEER = 2;
+}
+
+// Describes a Genstack project; this structure mirrors the `genstack.{pkl,json,...} file that
+// configures Genstack within a user's codebase.
+message ProjectManifest {
+  // Declares a dependency within a project's manifest; dependencies are specified by `purl` values,
+  // either partial or in full.
+  message Dependency {
+    // Specifies the coordinate for this dependency; may be partial.
+    oneof spec {
+      // The partial or full `purl` value of the dependency.
+      string purl = 1;
+    }
+
+    reserved 2;
+    reserved 3;
+    reserved 4;
+
+    // Specifies versioning pin information for this dependency.
+    oneof pin {
+      // The version declaration for this dependency.
+      string version = 5;
+    }
+
+    reserved 6;
+    reserved 7;
+    reserved 8;
+    reserved 9;
+
+    // The scope of the dependency.
+    DependencyScope scope = 10;
+
+    // The disposition state of the dependency.
+    DependencyDisposition disposition = 11;
+
+    // Indicates that this dependency is transitive only.
+    bool transitive = 12;
+
+    // Indicates that this dependency is a virtual dependency.
+    bool virtual = 13;
+
+    // Indicates that this dependency is fulfilled by a project.
+    bool project = 14;
+  }
+
+  // Declares a dependency suite within a project's manifest; dependency suites are collections of
+  // dependencies that apply in a given context (for example, compile-only, or dev-only dependencies,
+  // and so on). Top-level dependencies inhabit a root dependency group.
+  message DependencySuite {
+    // The scope of the dependency.
+    DependencyScope scope = 1;
+
+    // The disposition state of the dependency.
+    DependencyDisposition disposition = 2;
+
+    reserved 3;
+    reserved 4;
+    reserved 5;
+    reserved 6;
+    reserved 7;
+    reserved 8;
+    reserved 9;
+
+    // Dependencies affixed to this suite or declared by this suite.
+    repeated Dependency dependency = 10;
+  }
+
+  // Declares dependencies at the top-level of a project manifest.
+  message Dependencies {
+    // Regular compile-time dependencies for this project.
+    repeated Dependency dependency = 1;
+
+    // Runtime-only dependencies; implies a `DependencyScope` of `RUNTIME`.
+    DependencySuite runtime = 2;
+
+    // Compile-only dependencies. Implies a `DependencyScope` of `COMPILE` (the default or unset state).
+    DependencySuite compile_only = 3;
+
+    // Test-only dependencies. Implies a `DependencyScope` of `TEST`.
+    DependencySuite test_only = 4;
+
+    // Dev-only dependencies. Implies a `DependencyScope` of `DEVELOPMENT`.
+    DependencySuite dev_only = 5;
+  }
+
+  // The structural version of this manifest.
+  ManifestVersion manifest_version = 1;
+
+  // The name of the project; this field maps to the `name` field within a `package.json` field,
+  // and to the artifact name in a Maven coordinate (and so on).
+  string name = 2;
+
+  // The group ID of the project; this value is optional, but required if Maven support is in
+  // use within the project. Maps to the group ID in a Maven coordinate.
+  string group = 3;
+
+  // Version assigned to this project; expected to be expressed in semantic versioning ("semver")
+  // format. Versioning is largely up to the user.
+  string version = 4;
+
+  reserved 5;
+  reserved 6;
+  reserved 7;
+  reserved 8;
+  reserved 9;
+
+  // Top-level dependencies declared for this project.
+  Dependencies dependencies = 10;
+}

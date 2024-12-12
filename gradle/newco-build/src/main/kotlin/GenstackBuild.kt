@@ -1,11 +1,12 @@
 @file:Suppress("ConstPropertyName", "unused", "MemberVisibilityCanBePrivate")
 
+import kotlin.io.path.absolutePathString
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.jvm.toolchain.JvmVendorSpec
-import org.gradle.kotlin.dsl.assign
+import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
@@ -190,3 +191,131 @@ public fun Project.configureKmpProject() {
  */
 public fun Project.genstackMaven(name: String, version: String? = null): String =
     "${constants.mavenGroup}:$name${if (version != null) ":$version" else ""}"
+
+// Configures the Nexus Publishing plugin for Sonatype.
+private fun Project.configureNexus() {
+  configure<io.github.gradlenexus.publishplugin.NexusPublishExtension>() {
+    repositories {
+      sonatype {
+        nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+        snapshotRepositoryUrl.set(
+            uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+      }
+    }
+  }
+}
+
+// Configure the built-in Gradle publishing extension with target repositories.
+private fun Project.publishingRepositories() {
+  configureNexus()
+  configure<org.gradle.api.publish.PublishingExtension>() {
+    repositories {
+      maven {
+        name = "stage"
+        url =
+            uri(
+                "file://${rootProject.layout.buildDirectory.dir("repo").get().asFile.toPath().absolutePathString()}")
+      }
+    }
+  }
+}
+
+// Artifact prefix.
+private const val artifactPrefix = "genstack"
+
+// Transform an artifact name to include the expected prefix.
+private fun transformArtifactName(
+    original: String,
+    name: String,
+    prefix: String? = artifactPrefix
+): String {
+  // the artifact name might be:
+  // `something` or
+  // `something-{js,jvm...}`
+  //
+  // so, we need to transform it to `genstack-something` (the `prefix`), but honoring the postfix:
+  // `genstack-something` or
+  // `genstack-something-{js,jvm...}`
+  val postfix = original.removePrefix(name)
+  return if (prefix != null) {
+    "$prefix-$name$postfix"
+  } else {
+    name // no prefix, nothing to transform
+  }
+}
+
+/**
+ * Configure a publishing target for a KMP library.
+ *
+ * Depending on provided settings, multiple repositories will be configured:
+ * - Maven Central, via the Nexus publishing plugin
+ * - Local and staging repositories, via Gradle's built-in publishing plugin
+ *
+ * KMP libraries generate additional Gradle metadata for multiplatform use.
+ *
+ * @param artifactName Name of the published version of the library; for example, if the library is
+ *   known internally as `core`, this might be transformed to `genstack-core`. This name
+ *   artifactDescription always just be `core`.
+ * @param description Description of the library to include in the POM.
+ * @param pomCallback Callback to configure the POM; optional.
+ */
+public fun Project.publishableKmpLib(
+    artifactName: String = project.name,
+    artifactDescription: String? = null,
+    pomCallback: (org.gradle.api.publish.maven.MavenPom.() -> Unit)? = null,
+) {
+  // configure dist repositories
+  publishingRepositories()
+
+  // configure publishing
+  configure<org.gradle.api.publish.PublishingExtension>() {
+    publications {
+      withType<org.gradle.api.publish.maven.MavenPublication>().all {
+        pom {
+          description.set(artifactDescription)
+          pomCallback?.invoke(this)
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Configure a publishing target for a KMP library.
+ *
+ * Depending on provided settings, multiple repositories will be configured:
+ * - Maven Central, via the Nexus publishing plugin
+ * - Local and staging repositories, via Gradle's built-in publishing plugin
+ *
+ * @param name Name of the published version of the library; for example, if the library is known
+ *   internally as `core`, this might be transformed to `genstack-core`. This name should always
+ *   just be `core`.
+ * @param description Description of the library to include in the POM.
+ * @param pomCallback Callback to configure the POM; optional.
+ */
+public fun Project.publishableJvmLib(
+    artifactName: String = project.name,
+    artifactDescription: String? = null,
+    pomCallback: (org.gradle.api.publish.maven.MavenPom.() -> Unit)? = null,
+) {
+  // configure dist repositories
+  publishingRepositories()
+
+  // configure publishing
+  configure<org.gradle.api.publish.PublishingExtension>() {
+    publications {
+      create<org.gradle.api.publish.maven.MavenPublication>("maven") {
+        groupId = constants.mavenGroup
+        artifactId = transformArtifactName(name, artifactName)
+        version = project.version.toString()
+        artifact(tasks["jar"])
+
+        pom {
+          name.set(artifactName)
+          description.set(artifactDescription)
+          pomCallback?.invoke(this)
+        }
+      }
+    }
+  }
+}

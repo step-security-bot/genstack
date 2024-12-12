@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+// buf:lint:ignore PACKAGE_VERSION_SUFFIX
+package genstack;
+
+// Enumerates known project manifest versions.
+enum ManifestVersion {
+  // The manifest version is unspecified or unrecognized by this protocol version.
+  MANIFEST_VERSION_UNSPECIFIED = 0;
+
+  // The manifest version is "V1".
+  MANIFEST_VERSION_V1 = 1;
+}
