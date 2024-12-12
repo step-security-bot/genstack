@@ -3,9 +3,6 @@ name: "Build"
 on:
   workflow_call:
     inputs:
-      label:
-        type: string
-        default: "Linux amd64"
       runner:
         type: string
         default: ubuntu-latest
@@ -20,9 +17,6 @@ on:
         description: "Build: Draft"
   workflow_dispatch:
     inputs:
-      label:
-        type: string
-        default: "Linux amd64"
       runner:
         type: string
         default: ubuntu-latest
@@ -44,7 +38,7 @@ permissions:
 
 jobs:
   build-quick:
-    name: "Build (Quick, ${{ inputs.label }})"
+    name: "Build (TypeScript)"
     runs-on: ${{ inputs.runner }}
     permissions:
       contents: read
