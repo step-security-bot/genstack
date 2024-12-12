@@ -1,0 +1,7 @@
+fail-on-severity: moderate
+warn-only: true
+retry-on-snapshot-warnings: true
+comment-summary-in-pr: always
+vulnerability-check: true
+license-check: true
+allow-ghsas: []

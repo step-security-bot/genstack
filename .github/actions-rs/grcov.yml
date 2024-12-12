@@ -1,0 +1,2 @@
+output-type: lcov
+output-file: ./.dev/coverage/rust-lcov.info

@@ -1,0 +1,60 @@
+name: "Check (Detekt)"
+
+"on":
+  workflow_dispatch: {}
+  workflow_call: {}
+
+permissions:
+  contents: read
+
+jobs:
+  check-detekt:
+    name: "Check (Detekt)"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+      pull-requests: write
+    steps:
+      - name: "Setup: Harden Runner"
+        uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - name: "Setup: Checkout"
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: "Setup: PNPM"
+        uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        with:
+          run_install: false
+      - name: "Setup: Node"
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - name: "Setup: Bun"
+        uses: oven-sh/setup-bun@4bc047ad259df6fc24a6c9b0f9a0cb08cf17fbe5 # v2.0.1
+        with:
+          bun-version-file: ".bun-version"
+      - name: "Setup: NPM Dependencies"
+        run: pnpm install --frozen-lockfile
+      - name: "Setup: Detekt CLI"
+        shell: bash
+        run: |
+          curl -sSLO https://github.com/detekt/detekt/releases/download/v1.23.7/detekt-cli-1.23.7.zip
+          unzip detekt-cli-1.23.7.zip
+          ./detekt-cli-1.23.7/bin/detekt-cli --help
+          echo "$(pwd)/detekt-cli-1.23.7/bin/" >> $GITHUB_PATH
+          mv ./detekt-cli-1.23.7/bin/detekt-cli ./detekt-cli-1.23.7/bin/detekt
+      - name: "Check: Detekt"
+        run: pnpm run detekt
+      - name: "Report: Detekt SARIF"
+        uses: github/codeql-action/upload-sarif@6f9e628e6f9a18c785dd746325ba455111df1b67 # v3.27.6
+        if: success() || failure()
+        continue-on-error: true
+        with:
+          sarif_file: ./.dev/reports/detekt.sarif

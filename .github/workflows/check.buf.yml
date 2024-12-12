@@ -1,0 +1,52 @@
+name: "Check (Buf)"
+
+"on":
+  workflow_dispatch:
+    inputs:
+      breakcheck:
+        type: string
+        required: false
+        default: "Breakcheck Base"
+  workflow_call: {}
+
+permissions:
+  contents: read
+
+jobs:
+  check-biome:
+    name: "Check (Buf)"
+    runs-on: ubuntu-24.04
+    steps:
+      - name: "Setup: Harden Runner"
+        uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - name: "Setup: Checkout"
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: "Check: Buf Build"
+        uses: bufbuild/buf-action@v1
+        with:
+          token: ${{ secrets.BUF_TOKEN }}
+          # Change setup_only to true if you only want to set up the Action and not execute other commands.
+          # Otherwise, you can delete this line--the default is false.
+          setup_only: false
+          # Optional GitHub token for API requests. Ensures requests aren't rate limited.
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: "Check: Buf Lint"
+        uses: bufbuild/buf-action@v1
+        with:
+          token: ${{ secrets.BUF_TOKEN }}
+          # Change setup_only to true if you only want to set up the Action and not execute other commands.
+          # Otherwise, you can delete this line--the default is false.
+          setup_only: false
+          # Optional GitHub token for API requests. Ensures requests aren't rate limited.
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: "Check: Buf"
+        uses: bufbuild/buf-action@3fb70352251376e958c4c2c92c3818de82a71c2b # v1.0.2
+        with:
+          token: ${{ secrets.BUF_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}

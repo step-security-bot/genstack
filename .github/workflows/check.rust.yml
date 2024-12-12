@@ -1,0 +1,96 @@
+name: "Check (Rust)"
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        type: string
+        default: ubuntu-24.04
+        description: "Runner"
+      enforce:
+        type: boolean
+        default: true
+        description: "Enforce"
+  workflow_dispatch:
+    inputs:
+      runner:
+        type: string
+        default: ubuntu-24.04
+        description: "Runner"
+      enforce:
+        type: boolean
+        default: true
+        description: "Enforce"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check-clippy:
+    name: "Check (Clippy/Rust Format)"
+    runs-on: ${{ inputs.runner }}
+    continue-on-error: ${{ !inputs.enforce }}
+    steps:
+      - name: "Setup: Dependencies (Linux)"
+        if: contains(inputs.runner, 'linux') || contains(inputs.runner, 'ubuntu')
+        run: |
+          sudo apt update -y
+          sudo apt install -y \
+            --no-install-recommends \
+            build-essential \
+            libgtk-3-dev \
+            libssl-dev \
+            libjavascriptcoregtk-4.1-dev \
+            libsoup-3.0-dev \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            pkg-config
+      - name: "Setup: Harden Runner"
+        uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+        with:
+          disable-sudo: false
+          egress-policy: audit
+          allowed-endpoints: >
+            api.github.com:443
+            buf.build:443
+            github.com:443
+      - name: "Setup: Checkout"
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+          persist-credentials: false
+      - name: "Setup: PNPM"
+        uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        with:
+          run_install: false
+      - name: "Setup: Node"
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - name: "Setup: Bun"
+        uses: oven-sh/setup-bun@4bc047ad259df6fc24a6c9b0f9a0cb08cf17fbe5 # v2.0.1
+        with:
+          bun-version-file: ".bun-version"
+      - name: "Setup: NPM Dependencies"
+        run: pnpm install --frozen-lockfile
+      - name: "Setup: Rust"
+        uses: actions-rust-lang/setup-rust-toolchain@11df97af8e8102fd60b60a77dfbf58d40cd843b8 # v1.10.1
+        with:
+          toolchain: nightly
+          components: rustfmt,clippy,llvm-tools-preview
+      - name: "Setup: Buf"
+        uses: bufbuild/buf-setup-action@9672cee01808979ea1249f81d6d321217b9a10f6 # v1.47.2
+      - name: "Shim: Engine Binary"
+        run: |
+          mkdir -p engine/build/native/nativeCompile
+          touch engine/build/native/nativeCompile/engine-x86_64-unknown-linux-gnu
+      - name: "Build: Codegen"
+        working-directory: packages/protocol
+        run: buf generate
+      - name: "Check: Clippy"
+        continue-on-error: ${{ !inputs.enforce }}
+        run: cargo clippy
+      - name: "Check: Rust Format"
+        continue-on-error: ${{ !inputs.enforce }}
+        run: cargo fmt --check
