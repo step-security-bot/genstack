@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>SpreadOperator:GraalvmContextProvider.kt$GraalvmContextProvider$(*Constants.languages)</ID>
+    <ID>UnusedPrivateProperty:GraalvmContextProvider.kt$GraalvmContextProvider.Companion$private val logging by lazy { LoggerFactory.getLogger(GraalvmContextProvider::class.java) }</ID>
+    <ID>UnusedPrivateProperty:RunCommand.kt$RunCommand$private val disableHotReload by option("--no-reload") .flag(default = false) .help("Disable the hot reload feature.")</ID>
+    <ID>WildcardImport:ConstantsTest.kt$import kotlin.test.*</ID>
+    <ID>WildcardImport:FailurePolicy.kt$import gg.genstack.engine.FailurePolicy.*</ID>
+    <ID>WildcardImport:RulesEngine.kt$import kotlinx.coroutines.*</ID>
+    <ID>WildcardImport:YamlManifestParser.kt$import com.charleskorn.kaml.*</ID>
+    <ID>WildcardImport:YamlManifestParser.kt$import gg.genstack.engine.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

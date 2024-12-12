@@ -1,0 +1,57 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "vcs": {
+    "enabled": false,
+    "clientKind": "git",
+    "useIgnoreFile": false
+  },
+  "files": {
+    "ignoreUnknown": false,
+    "ignore": [
+      "commitlint.config.cts",
+      ".dev",
+      "build",
+      "commons/build",
+      "app/src-tauri/gen",
+      "app/src-tauri/target",
+      "app/src/components",
+      "app/src/hooks",
+      "app/storybook-static",
+      "app/dist",
+      "app/dist-isolation",
+      "packages/vscode/genstack/esbuild.js",
+      "packages/protocol/gen",
+      "packages/vscode",
+      "packages/config/scripts/constants.mts",
+      "dist"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "useEditorconfig": true
+  },
+  "organizeImports": {
+    "enabled": true
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "suspicious": {
+        "noDebugger": "off",
+        "noConsoleLog": "off",
+        "noExplicitAny": "off"
+      },
+      "a11y": {
+        "noSvgWithoutTitle": "off"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double"
+    }
+  }
+}

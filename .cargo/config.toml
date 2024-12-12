@@ -1,0 +1,28 @@
+[build]
+rustflags = [
+    # Enforce completely position-independent executables.
+    "-Crelocation-model=pic",
+
+    # Enables access to unstable options.
+    # "-Zunstable-options",
+
+    # Enable multithreaded compiler frontend.
+    # "-Zthreads=8",
+]
+
+[env]
+GENSTACK_ROOT = { value = ".", relative = true }
+SQLITE3_STATIC = { value = "1" }
+SQLITE3_LIB_DIR = { value = "third_party/sqlite/install/lib", relative = true }
+SQLITE3_INCLUDE_DIR = { value = "third_party/sqlite/install/include", relative = true }
+
+[registries.buf]
+index = "sparse+https://buf.build/gen/cargo/"
+credential-provider = "cargo:token"
+token = "Bearer 05a7bfb510d971ad1e14cf9116d2beabfb9977e35cd5cd7dd04dde71490042c5"
+
+[target.aarch64-linux-android]
+linker = "aarch64-linux-android34-clang"
+
+[target.i686-linux-android]
+linker = "i686-linux-android34-clang"

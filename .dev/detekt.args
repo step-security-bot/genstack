@@ -1,0 +1,6 @@
+--parallel
+--baseline ./.dev/detekt-baseline.xml
+--config ./.dev/detekt.yml
+--language-version 2.0
+--jvm-target 20
+--build-upon-default-config

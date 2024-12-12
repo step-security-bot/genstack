@@ -167,7 +167,9 @@ export function parseQuery(query: string): QueryInfo {
  * @param type The query type to resolve access for.
  * @returns The requisite access level for the query type.
  */
-export function requisiteAccessForQueryType(type: QueryType): DatabaseAccessLevel {
+export function requisiteAccessForQueryType(
+  type: QueryType,
+): DatabaseAccessLevel {
   switch (type) {
     case QueryType.DDL:
       return DatabaseAccessLevel.ADMIN;
@@ -185,7 +187,9 @@ export function requisiteAccessForQueryType(type: QueryType): DatabaseAccessLeve
  * @return The access level required for the query.
  */
 export function maximalAccessLevel(query: QueryInfo): DatabaseAccessLevel {
-  return Math.max(...query.statements.map((stmt) => requisiteAccessForQueryType(stmt.type)));
+  return Math.max(
+    ...query.statements.map((stmt) => requisiteAccessForQueryType(stmt.type)),
+  );
 }
 
 /**
@@ -195,7 +199,10 @@ export function maximalAccessLevel(query: QueryInfo): DatabaseAccessLevel {
  * @param level The access level to check against.
  * @returns Whether the query can be executed at the given access level.
  */
-export function checkQueryAccess(query: QueryInfo, level: DatabaseAccessLevel): boolean {
+export function checkQueryAccess(
+  query: QueryInfo,
+  level: DatabaseAccessLevel,
+): boolean {
   return maximalAccessLevel(query) <= level;
 }
 
@@ -208,10 +215,16 @@ export function checkQueryAccess(query: QueryInfo, level: DatabaseAccessLevel): 
  * @param query Query string to parse.
  * @return Parsed and validated query info.
  */
-export function parseCheckQuery(query: string, level: DatabaseAccessLevel = defaultAccess): QueryInfo {
+export function parseCheckQuery(
+  query: string,
+  level: DatabaseAccessLevel = defaultAccess,
+): QueryInfo {
   const parsed = parseQuery(query);
   if (!checkQueryAccess(parsed, level)) {
-    throw new ConnectError("Access denied for query type", Code.PermissionDenied);
+    throw new ConnectError(
+      "Access denied for query type",
+      Code.PermissionDenied,
+    );
   }
   return parsed;
 }

@@ -36,8 +36,12 @@ const withMockStdStreams = (fn: () => void) => {
     // @ts-ignore
     console.log = original_log;
   }
-  const stdoutCalls = calls.filter((i) => i.stream === "stdout").map((i) => i.args);
-  const stderrCalls = calls.filter((i) => i.stream === "stderr").map((i) => i.args);
+  const stdoutCalls = calls
+    .filter((i) => i.stream === "stdout")
+    .map((i) => i.args);
+  const stderrCalls = calls
+    .filter((i) => i.stream === "stderr")
+    .map((i) => i.args);
   return { stdout: stdoutCalls, stderr: stderrCalls };
 };
 

@@ -54,8 +54,12 @@ const withStubbedStdStreams = (fn) => {
   }
   return {
     result,
-    stdout: calls.filter((c) => c.stream === "stdout").map((c) => c.args.join("")),
-    stderr: calls.filter((c) => c.stream === "stderr").map((c) => c.args.join("")),
+    stdout: calls
+      .filter((c) => c.stream === "stdout")
+      .map((c) => c.args.join("")),
+    stderr: calls
+      .filter((c) => c.stream === "stderr")
+      .map((c) => c.args.join("")),
   };
 };
 
@@ -317,7 +321,9 @@ describe("cli", () => {
         const signal = controller.signal;
         const port = 3000;
         const host = "localhost";
-        const databaseClient = client.databaseClient(client.createWebTransport("http://localhost:3000"));
+        const databaseClient = client.databaseClient(
+          client.createWebTransport("http://localhost:3000"),
+        );
         const dbClient = api.useClient(databaseClient);
         cli.serve({ signal, port, host, debugLogger: () => {} });
         return {
@@ -330,7 +336,9 @@ describe("cli", () => {
       expect(dbClient).not.toBeUndefined();
       await dbClient.connect("default");
       expect(dbClient.connected()).toBeTrue();
-      expect(cli.runQuery(false, "SELECT 1;", { format: cli.CliOutputFormat.JSON })).resolves.toBeUndefined();
+      expect(
+        cli.runQuery(false, "SELECT 1;", { format: cli.CliOutputFormat.JSON }),
+      ).resolves.toBeUndefined();
       controller.abort();
     });
   });
@@ -354,7 +362,9 @@ describe("cli", () => {
         const signal = controller.signal;
         const port = 3000;
         const host = "localhost";
-        const databaseClient = client.databaseClient(client.createWebTransport("http://localhost:3000"));
+        const databaseClient = client.databaseClient(
+          client.createWebTransport("http://localhost:3000"),
+        );
         const dbClient = api.useClient(databaseClient);
         cli.serve({ signal, port, host, debugLogger: () => {} });
         return {
@@ -375,7 +385,9 @@ describe("cli", () => {
         const signal = controller.signal;
         const port = 3000;
         const host = "localhost";
-        const databaseClient = client.databaseClient(client.createWebTransport("http://localhost:3000"));
+        const databaseClient = client.databaseClient(
+          client.createWebTransport("http://localhost:3000"),
+        );
         const dbClient = api.useClient(databaseClient);
         cli.serve({ signal, port, host, debugLogger: () => {} });
         return {
@@ -398,112 +410,284 @@ describe("cli", () => {
   describe("formats", () => {
     describe("proto", () => {
       test("rejects invalid formats", () => {
-        expect(() => cli.encodeProtoResponse("invalid" as any, sampleEmptyResponse)).toThrow();
+        expect(() =>
+          cli.encodeProtoResponse("invalid" as any, sampleEmptyResponse),
+        ).toThrow();
       });
       describe("JSON", () => {
         test("empty", () => {
-          expect(() => cli.encodeProtoResponse(cli.CliOutputFormat.JSON, sampleEmptyResponse)).not.toThrow();
-          expect(cli.encodeProtoResponse(cli.CliOutputFormat.JSON, sampleEmptyResponse)).toBeObject();
-          expect(cli.encodeProtoResponse(cli.CliOutputFormat.JSON, sampleEmptyResponse)).not.toBeEmpty();
+          expect(() =>
+            cli.encodeProtoResponse(
+              cli.CliOutputFormat.JSON,
+              sampleEmptyResponse,
+            ),
+          ).not.toThrow();
+          expect(
+            cli.encodeProtoResponse(
+              cli.CliOutputFormat.JSON,
+              sampleEmptyResponse,
+            ),
+          ).toBeObject();
+          expect(
+            cli.encodeProtoResponse(
+              cli.CliOutputFormat.JSON,
+              sampleEmptyResponse,
+            ),
+          ).not.toBeEmpty();
         });
         test("single", () => {
-          expect(() => cli.encodeProtoResponse(cli.CliOutputFormat.JSON, sampleSingleResponse)).not.toThrow();
-          expect(cli.encodeProtoResponse(cli.CliOutputFormat.JSON, sampleSingleResponse)).toBeObject();
-          expect(cli.encodeProtoResponse(cli.CliOutputFormat.JSON, sampleSingleResponse)).not.toBeEmpty();
+          expect(() =>
+            cli.encodeProtoResponse(
+              cli.CliOutputFormat.JSON,
+              sampleSingleResponse,
+            ),
+          ).not.toThrow();
+          expect(
+            cli.encodeProtoResponse(
+              cli.CliOutputFormat.JSON,
+              sampleSingleResponse,
+            ),
+          ).toBeObject();
+          expect(
+            cli.encodeProtoResponse(
+              cli.CliOutputFormat.JSON,
+              sampleSingleResponse,
+            ),
+          ).not.toBeEmpty();
         });
         test("rows", () => {
-          expect(() => cli.encodeProtoResponse(cli.CliOutputFormat.JSON, sampleRowsResponse)).not.toThrow();
-          expect(cli.encodeProtoResponse(cli.CliOutputFormat.JSON, sampleRowsResponse)).toBeObject();
-          expect(cli.encodeProtoResponse(cli.CliOutputFormat.JSON, sampleRowsResponse)).not.toBeEmpty();
+          expect(() =>
+            cli.encodeProtoResponse(
+              cli.CliOutputFormat.JSON,
+              sampleRowsResponse,
+            ),
+          ).not.toThrow();
+          expect(
+            cli.encodeProtoResponse(
+              cli.CliOutputFormat.JSON,
+              sampleRowsResponse,
+            ),
+          ).toBeObject();
+          expect(
+            cli.encodeProtoResponse(
+              cli.CliOutputFormat.JSON,
+              sampleRowsResponse,
+            ),
+          ).not.toBeEmpty();
         });
       });
       describe("BINARY", () => {
         test("empty", () => {
-          expect(() => cli.encodeProtoResponse(cli.CliOutputFormat.BINARY, sampleEmptyResponse)).not.toThrow();
-          expect(cli.encodeProtoResponse(cli.CliOutputFormat.BINARY, sampleEmptyResponse)).toBeObject();
-          expect(cli.encodeProtoResponse(cli.CliOutputFormat.BINARY, sampleEmptyResponse)).not.toBeEmpty();
+          expect(() =>
+            cli.encodeProtoResponse(
+              cli.CliOutputFormat.BINARY,
+              sampleEmptyResponse,
+            ),
+          ).not.toThrow();
+          expect(
+            cli.encodeProtoResponse(
+              cli.CliOutputFormat.BINARY,
+              sampleEmptyResponse,
+            ),
+          ).toBeObject();
+          expect(
+            cli.encodeProtoResponse(
+              cli.CliOutputFormat.BINARY,
+              sampleEmptyResponse,
+            ),
+          ).not.toBeEmpty();
         });
         test("single", () => {
-          expect(() => cli.encodeProtoResponse(cli.CliOutputFormat.BINARY, sampleSingleResponse)).not.toThrow();
-          expect(cli.encodeProtoResponse(cli.CliOutputFormat.BINARY, sampleSingleResponse)).toBeObject();
-          expect(cli.encodeProtoResponse(cli.CliOutputFormat.BINARY, sampleSingleResponse)).not.toBeEmpty();
+          expect(() =>
+            cli.encodeProtoResponse(
+              cli.CliOutputFormat.BINARY,
+              sampleSingleResponse,
+            ),
+          ).not.toThrow();
+          expect(
+            cli.encodeProtoResponse(
+              cli.CliOutputFormat.BINARY,
+              sampleSingleResponse,
+            ),
+          ).toBeObject();
+          expect(
+            cli.encodeProtoResponse(
+              cli.CliOutputFormat.BINARY,
+              sampleSingleResponse,
+            ),
+          ).not.toBeEmpty();
         });
         test("rows", () => {
-          expect(() => cli.encodeProtoResponse(cli.CliOutputFormat.BINARY, sampleRowsResponse)).not.toThrow();
-          expect(cli.encodeProtoResponse(cli.CliOutputFormat.BINARY, sampleRowsResponse)).toBeObject();
-          expect(cli.encodeProtoResponse(cli.CliOutputFormat.BINARY, sampleRowsResponse)).not.toBeEmpty();
+          expect(() =>
+            cli.encodeProtoResponse(
+              cli.CliOutputFormat.BINARY,
+              sampleRowsResponse,
+            ),
+          ).not.toThrow();
+          expect(
+            cli.encodeProtoResponse(
+              cli.CliOutputFormat.BINARY,
+              sampleRowsResponse,
+            ),
+          ).toBeObject();
+          expect(
+            cli.encodeProtoResponse(
+              cli.CliOutputFormat.BINARY,
+              sampleRowsResponse,
+            ),
+          ).not.toBeEmpty();
         });
       });
     });
     describe("javascript types", () => {
       test("rejects invalid formats", () => {
-        expect(() => cli.encodeQueryResponse("invalid" as any, sampleEmptyResponse, sampleEmptyResult)).toThrow();
+        expect(() =>
+          cli.encodeQueryResponse(
+            "invalid" as any,
+            sampleEmptyResponse,
+            sampleEmptyResult,
+          ),
+        ).toThrow();
       });
       describe("JSON", () => {
         test("empty", () => {
           expect(() =>
-            cli.encodeQueryResponse(cli.CliOutputFormat.JSON, sampleEmptyResponse, sampleEmptyResult),
+            cli.encodeQueryResponse(
+              cli.CliOutputFormat.JSON,
+              sampleEmptyResponse,
+              sampleEmptyResult,
+            ),
           ).not.toThrow();
           expect(
-            cli.encodeQueryResponse(cli.CliOutputFormat.JSON, sampleEmptyResponse, sampleEmptyResult),
+            cli.encodeQueryResponse(
+              cli.CliOutputFormat.JSON,
+              sampleEmptyResponse,
+              sampleEmptyResult,
+            ),
           ).toBeString();
           expect(
-            cli.encodeQueryResponse(cli.CliOutputFormat.JSON, sampleEmptyResponse, sampleEmptyResult),
+            cli.encodeQueryResponse(
+              cli.CliOutputFormat.JSON,
+              sampleEmptyResponse,
+              sampleEmptyResult,
+            ),
           ).not.toBeEmpty();
         });
         test("single", () => {
           expect(() =>
-            cli.encodeQueryResponse(cli.CliOutputFormat.JSON, sampleSingleResponse, sampleSingleResult),
+            cli.encodeQueryResponse(
+              cli.CliOutputFormat.JSON,
+              sampleSingleResponse,
+              sampleSingleResult,
+            ),
           ).not.toThrow();
           expect(
-            cli.encodeQueryResponse(cli.CliOutputFormat.JSON, sampleSingleResponse, sampleSingleResult),
+            cli.encodeQueryResponse(
+              cli.CliOutputFormat.JSON,
+              sampleSingleResponse,
+              sampleSingleResult,
+            ),
           ).toBeString();
           expect(
-            cli.encodeQueryResponse(cli.CliOutputFormat.JSON, sampleSingleResponse, sampleSingleResult),
+            cli.encodeQueryResponse(
+              cli.CliOutputFormat.JSON,
+              sampleSingleResponse,
+              sampleSingleResult,
+            ),
           ).not.toBeEmpty();
         });
         test("rows", () => {
           expect(() =>
-            cli.encodeQueryResponse(cli.CliOutputFormat.JSON, sampleRowsResponse, sampleRowsResult),
+            cli.encodeQueryResponse(
+              cli.CliOutputFormat.JSON,
+              sampleRowsResponse,
+              sampleRowsResult,
+            ),
           ).not.toThrow();
-          expect(cli.encodeQueryResponse(cli.CliOutputFormat.JSON, sampleRowsResponse, sampleRowsResult)).toBeString();
           expect(
-            cli.encodeQueryResponse(cli.CliOutputFormat.JSON, sampleRowsResponse, sampleRowsResult),
+            cli.encodeQueryResponse(
+              cli.CliOutputFormat.JSON,
+              sampleRowsResponse,
+              sampleRowsResult,
+            ),
+          ).toBeString();
+          expect(
+            cli.encodeQueryResponse(
+              cli.CliOutputFormat.JSON,
+              sampleRowsResponse,
+              sampleRowsResult,
+            ),
           ).not.toBeEmpty();
         });
       });
       describe("BINARY", () => {
         test("empty", () => {
           expect(() =>
-            cli.encodeQueryResponse(cli.CliOutputFormat.BINARY, sampleEmptyResponse, sampleEmptyResult),
+            cli.encodeQueryResponse(
+              cli.CliOutputFormat.BINARY,
+              sampleEmptyResponse,
+              sampleEmptyResult,
+            ),
           ).not.toThrow();
           expect(
-            cli.encodeQueryResponse(cli.CliOutputFormat.BINARY, sampleEmptyResponse, sampleEmptyResult),
+            cli.encodeQueryResponse(
+              cli.CliOutputFormat.BINARY,
+              sampleEmptyResponse,
+              sampleEmptyResult,
+            ),
           ).toBeString();
           expect(
-            cli.encodeQueryResponse(cli.CliOutputFormat.BINARY, sampleEmptyResponse, sampleEmptyResult),
+            cli.encodeQueryResponse(
+              cli.CliOutputFormat.BINARY,
+              sampleEmptyResponse,
+              sampleEmptyResult,
+            ),
           ).not.toBeEmpty();
         });
         test("single", () => {
           expect(() =>
-            cli.encodeQueryResponse(cli.CliOutputFormat.BINARY, sampleSingleResponse, sampleSingleResult),
+            cli.encodeQueryResponse(
+              cli.CliOutputFormat.BINARY,
+              sampleSingleResponse,
+              sampleSingleResult,
+            ),
           ).not.toThrow();
           expect(
-            cli.encodeQueryResponse(cli.CliOutputFormat.BINARY, sampleSingleResponse, sampleSingleResult),
+            cli.encodeQueryResponse(
+              cli.CliOutputFormat.BINARY,
+              sampleSingleResponse,
+              sampleSingleResult,
+            ),
           ).toBeString();
           expect(
-            cli.encodeQueryResponse(cli.CliOutputFormat.BINARY, sampleSingleResponse, sampleSingleResult),
+            cli.encodeQueryResponse(
+              cli.CliOutputFormat.BINARY,
+              sampleSingleResponse,
+              sampleSingleResult,
+            ),
           ).not.toBeEmpty();
         });
         test("rows", () => {
           expect(() =>
-            cli.encodeQueryResponse(cli.CliOutputFormat.BINARY, sampleRowsResponse, sampleRowsResult),
+            cli.encodeQueryResponse(
+              cli.CliOutputFormat.BINARY,
+              sampleRowsResponse,
+              sampleRowsResult,
+            ),
           ).not.toThrow();
           expect(
-            cli.encodeQueryResponse(cli.CliOutputFormat.BINARY, sampleRowsResponse, sampleRowsResult),
+            cli.encodeQueryResponse(
+              cli.CliOutputFormat.BINARY,
+              sampleRowsResponse,
+              sampleRowsResult,
+            ),
           ).toBeString();
           expect(
-            cli.encodeQueryResponse(cli.CliOutputFormat.BINARY, sampleRowsResponse, sampleRowsResult),
+            cli.encodeQueryResponse(
+              cli.CliOutputFormat.BINARY,
+              sampleRowsResponse,
+              sampleRowsResult,
+            ),
           ).not.toBeEmpty();
         });
       });
@@ -517,7 +701,12 @@ describe("cli", () => {
           stdoutWriter: mock(),
           stderrWriter: mock(),
         };
-        cli.outputForCommand(cli.CliOutputFormat.JSON, {}, "test", actions as any);
+        cli.outputForCommand(
+          cli.CliOutputFormat.JSON,
+          {},
+          "test",
+          actions as any,
+        );
         expect(actions.fileWriter).not.toHaveBeenCalled();
         expect(actions.stdoutWriter).not.toHaveBeenCalledTimes(1);
         expect(actions.stderrWriter).toHaveBeenCalled();
@@ -528,7 +717,12 @@ describe("cli", () => {
           stdoutWriter: mock(),
           stderrWriter: mock(),
         };
-        cli.outputForCommand(cli.CliOutputFormat.JSON, { out: "test.json" }, "test", actions as any);
+        cli.outputForCommand(
+          cli.CliOutputFormat.JSON,
+          { out: "test.json" },
+          "test",
+          actions as any,
+        );
         expect(actions.fileWriter).toHaveBeenCalledTimes(1);
         expect(actions.stdoutWriter).not.toHaveBeenCalled();
         expect(actions.stderrWriter).not.toHaveBeenCalled();
@@ -539,7 +733,12 @@ describe("cli", () => {
           stdoutWriter: mock(),
           stderrWriter: mock(),
         };
-        cli.outputForCommand(cli.CliOutputFormat.JSON, { out: "-" }, "test", actions as any);
+        cli.outputForCommand(
+          cli.CliOutputFormat.JSON,
+          { out: "-" },
+          "test",
+          actions as any,
+        );
         expect(actions.fileWriter).not.toHaveBeenCalledTimes(1);
         expect(actions.stdoutWriter).toHaveBeenCalled();
         expect(actions.stderrWriter).not.toHaveBeenCalled();
@@ -552,7 +751,12 @@ describe("cli", () => {
           stdoutWriter: mock(),
           stderrWriter: mock(),
         };
-        cli.outputForCommand(cli.CliOutputFormat.BINARY, {}, "test", actions as any);
+        cli.outputForCommand(
+          cli.CliOutputFormat.BINARY,
+          {},
+          "test",
+          actions as any,
+        );
         expect(actions.fileWriter).not.toHaveBeenCalled();
         expect(actions.stdoutWriter).not.toHaveBeenCalledTimes(1);
         expect(actions.stderrWriter).toHaveBeenCalled();
@@ -563,7 +767,12 @@ describe("cli", () => {
           stdoutWriter: mock(),
           stderrWriter: mock(),
         };
-        cli.outputForCommand(cli.CliOutputFormat.BINARY, { out: "test.bin" }, "test", actions as any);
+        cli.outputForCommand(
+          cli.CliOutputFormat.BINARY,
+          { out: "test.bin" },
+          "test",
+          actions as any,
+        );
         expect(actions.fileWriter).toHaveBeenCalledTimes(1);
         expect(actions.stdoutWriter).not.toHaveBeenCalled();
         expect(actions.stderrWriter).not.toHaveBeenCalled();
@@ -574,7 +783,12 @@ describe("cli", () => {
           stdoutWriter: mock(),
           stderrWriter: mock(),
         };
-        cli.outputForCommand(cli.CliOutputFormat.BINARY, { out: "-" }, "test", actions as any);
+        cli.outputForCommand(
+          cli.CliOutputFormat.BINARY,
+          { out: "-" },
+          "test",
+          actions as any,
+        );
         expect(actions.fileWriter).not.toHaveBeenCalledTimes(1);
         expect(actions.stdoutWriter).toHaveBeenCalled();
         expect(actions.stderrWriter).not.toHaveBeenCalled();
@@ -592,13 +806,24 @@ describe("cli", () => {
     });
     test("data for query types", () => {
       expect(cli.dataForMode(api.QueryResultMode.Empty, {})).toEqual({});
-      expect(cli.dataForMode(api.QueryResultMode.Mutation, { count: 42 })).toEqual({ count: 42 });
-      expect(cli.dataForMode(api.QueryResultMode.Error, { error: "oops", code: "42" })).toEqual({
+      expect(
+        cli.dataForMode(api.QueryResultMode.Mutation, { count: 42 }),
+      ).toEqual({ count: 42 });
+      expect(
+        cli.dataForMode(api.QueryResultMode.Error, {
+          error: "oops",
+          code: "42",
+        }),
+      ).toEqual({
         error: "oops",
         code: "42",
       });
-      expect(cli.dataForMode(api.QueryResultMode.Rows, { tables: [], rows: [] })).toEqual({ tables: [], rows: [] });
-      expect(cli.dataForMode(api.QueryResultMode.Single, { value: 42 })).toEqual({ value: 42 });
+      expect(
+        cli.dataForMode(api.QueryResultMode.Rows, { tables: [], rows: [] }),
+      ).toEqual({ tables: [], rows: [] });
+      expect(
+        cli.dataForMode(api.QueryResultMode.Single, { value: 42 }),
+      ).toEqual({ value: 42 });
       expect(() => cli.dataForMode("other", {})).toThrow();
     });
   });
