@@ -36,3 +36,43 @@ updates:
       - buf-npm
     schedule:
       interval: weekly
+
+  - package-ecosystem: npm
+    directory: /packages/builder
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /packages/config/kotlin-js-store
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /packages/config
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /packages/memdb
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /packages/protocol/kotlin-js-store
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /packages/protocol
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /packages/sdk
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /packages/util
+    schedule:
+      interval: daily
