@@ -24,6 +24,7 @@
         "build": "pnpm -r build",
         "test": "pnpm -r test",
         "report:coverage": "echo 'Unified coverage reporting is not implemented yet'",
+        "report:tests": "echo 'Unified test reporting is not implemented yet'",
         "reports": "pnpm run report:tests && pnpm run report:coverage",
         "prepare": "husky"
     },
